@@ -1,0 +1,162 @@
+const userModel = require('../models/user.model')
+const APIError = require('../utils/Error')
+const Response = require('../utils/Response')
+const bcrypt = require('bcrypt')
+const crypto = require('crypto')
+const mail = require('../helpers/sendMail')
+const authMiddlewares = require('../middlewares/auth.middlewares')
+const moment = require('moment')
+
+const registerController = async(req,res) => {
+  
+    const auth = await userModel.findOne({email:req.body.email})
+    if(auth) throw new APIError('This email is already in use, please try different email', 409)
+
+    const verificationCode = crypto.randomBytes(3).toString('hex')
+    let mailOption = new mail.MailOption(process.env.EMAIL_ADRESS, req.body.email, "Confirm Email", `Please enter this confirmation code to start using 'myAPI'. ${verificationCode}`)
+    await mail.sendMail(mailOption)
+
+    const password = await bcrypt.hash(req.body.password,10)
+    const userDb = new userModel({
+        name : req.body.name,
+        lastname : req.body.lastname, 
+        email : req.body.email,
+        password : password,
+        verificationAccount : {
+            verificationCode : verificationCode,
+            verifiedAccount : false
+        }
+    })
+
+    const response = await userDb.save()
+    if(response) return new Response(null, 'To complete the registration process, please check your email inbox.').created(res)
+    else throw new APIError('An error occurred during registration', 500)
+}
+
+
+const resendVerificationEmailController = async(req,res) => {
+    const auth = await userModel.findOne({email:req.body.email})
+    if(!auth) throw new APIError('User information is incorrect, please try again', 400)
+
+    if(auth.verificationAccount.verifiedAccount === false) {
+        const verificationCode = crypto.randomBytes(3).toString('hex') //*created random code
+        let mailOption = new mail.MailOption(process.env.EMAIL_ADRESS, req.body.email, "Confirm Email", `Please enter this confirmation code to start using 'myAPI'. ${verificationCode}`)
+        await mail.sendMail(mailOption)
+
+        const result = await userModel.updateOne({_id : auth._id}, {verificationAccount : {verificationCode : verificationCode, verifiedAccount : false}})
+        if(result) return new Response(null, 'Please check your email inbox again.').ok(res)
+    }
+    else return new Response(null, 'Already registration completed successfully').conflict(res)
+ 
+}
+
+
+const completeRegistrationController = async(req,res) => {
+    const user = await userModel.findOne({email : req.body.email})
+    if(!user) throw new APIError('User information is incorrect, please try again',400)
+
+    if(user.verificationAccount.verifiedAccount === true) return new Response(null, 'Already registration completed successfully').ok(res)
+
+    if(user.verificationAccount.verificationCode === req.body.verificationCode){
+        const result = await userModel.updateOne({_id : user._id}, {verificationAccount : {verifiedAccount:true}})
+
+        if(result) {
+            await userModel.updateOne({_id : user._id}, {verificationAccount : {verificationCode:null, verifiedAccount:true}})
+            return new Response(null,'Registration completed successfully').created(res)
+        }
+        else throw new APIError('An error occurred during registration.',500)
+    }
+    
+}
+
+
+const loginController = async(req,res,next) => {
+    const user = await userModel.findOne({email : req.body.email})
+    if(!user) throw new APIError('User information is incorrect, please try again', 400)
+
+    if( (user.verificationAccount.verifiedAccount===true) && await bcrypt.compare(req.body.password, user.password)) {
+        authMiddlewares.createToken(user,res)
+        //return new Response(user, "login successfull").ok(res)
+
+    }
+    else throw new APIError('User information is incorrect, please try again', 400)
+    /*
+    else {
+        !Send confirmation email again for unverified accounts
+        const verificationCode = crypto.randomBytes(3).toString('hex')
+        let mailOption = new mail.MailOption(process.env.EMAIL_ADRESS, req.body.email, "Confirm Email", `Please enter this confirmation code to start using 'myAPI'. ${verificationCode}`)
+        await mail.sendMail(mailOption)
+
+        return new Response(null, 'To complete the registration process, please check your email inbox.').created(res)
+    }
+    */
+}
+
+const forgotPasswordController = async (req, res) => {
+    const email = req.body.email
+
+    const user = await userModel.findOne({ email })
+
+    if (!user) {throw new APIError('No such email address exists.')}
+
+    const resetCode = crypto.randomBytes(3).toString('hex'); 
+    
+    let mailOption = new mail.MailOption(process.env.EMAIL_ADRESS, req.body.email, "Reset Password", `reset code 'myAPI'. ${resetCode}`)
+    await mail.sendMail(mailOption)
+
+    await userModel.updateOne({email}, {reset : {code : resetCode, time : moment(new Date()).add(15,'minute').format('YYYY-MM-DD HH:mm:ss')}  }) //* Add 15 minutes to the current time and save it to the database.
+
+    return new Response(true, 'Your password reset code has been sent to your e-mail address').ok(res)
+
+
+}
+
+const forgotPasswordCheckCodeController = async (req,res) => {
+    const email = req.body.email
+    const code = req.body.code
+
+    const user = await userModel.findOne({email})
+    if(!user || code !== user.reset.code) throw new APIError('Email or code incorrect', 404)
+
+    const nowTime = moment(new Date()) //* current time
+    const dbTime = moment(user.reset.time) //* we got the time recorded in the database.
+    const timeDiff = dbTime.diff(nowTime, 'minutes') //* We subtracted the current time from the time in the database. We should get -15.
+
+    if(timeDiff >=0 && code){
+        const temporaryToken = await authMiddlewares.createTemporaryToken(user)
+
+        return new Response({temporaryToken}, 'successful, you can reset your password.').ok(res)
+    }
+    else return new Response(false, 'Transmitted code timed out.').forbidden(res)
+    
+}
+
+const resetPasswordController = async(req,res) => {
+    const password = req.body.password
+    const temporaryToken = req.body.temporaryToken
+
+    const decodedToken = await authMiddlewares.decodedTemporaryToken(temporaryToken)
+    //console.log("çözümlenmiş token", decodedToken)
+
+    if(!decodedToken) throw new APIError('not found token', 401)
+
+    const hashPassword = await bcrypt.hash(password,10)
+
+    await userModel.findByIdAndUpdate({_id : decodedToken._id}, {reset : {code : null, time : null}, password : hashPassword})
+
+    return new Response(true, 'password reset successful').ok(res)
+}
+
+
+
+const tokenControlTestController = async(req,res) => {
+    const authUser = req.authUser
+    return new Response(authUser, 'user information').ok(res)
+}
+
+
+
+module.exports = {
+    loginController,registerController,completeRegistrationController,resendVerificationEmailController,tokenControlTestController,
+    forgotPasswordController,forgotPasswordCheckCodeController,resetPasswordController
+}

@@ -1,0 +1,16 @@
+version: "3.8"    
+
+services:
+  node-server:    
+    build: .     
+    ports:  
+      - 5000:5000   
+  
+  mongodb-docker: 
+    image: mongo
+    ports: 
+      - 27017:27017
+    volumes:       
+      - rest-api-data:/data/db 
+volumes:
+  rest-api-data:
