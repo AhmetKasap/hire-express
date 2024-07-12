@@ -33,7 +33,7 @@ const checkToken = async (req,res,next) => {
             }
             else {
                 const userInfo = await userModel.findOne({_id : decoded.payload.id})
-                console.log("user Info :", userInfo)
+                //console.log("user Info :", userInfo)
                 if(!userInfo) {
                     throw new APIError("User not found in the database", 404)
                 }
