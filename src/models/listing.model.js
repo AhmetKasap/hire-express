@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const hostSchema = new mongoose.Schema({
+const listingSchema = new mongoose.Schema({
     location : {type : String, required : true},
     hostType : {type : String, required : true},
     numberOfGuests : {type : Number, required: true},
@@ -12,5 +12,5 @@ const hostSchema = new mongoose.Schema({
 
 })
 
-const Host = mongoose.model('host', hostSchema)
-module.exports = Host
+const Listing = mongoose.model('listing', listingSchema)
+module.exports = Listing
