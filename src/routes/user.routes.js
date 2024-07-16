@@ -9,7 +9,10 @@ const {
     getProfile,
     editProfile,
     getAvatar,
-    updateAvatar
+    updateAvatar,
+    addFavorites,
+    deleteFavorites,
+    getFavorites
 
 } = require('../controllers/user.controller')
 
@@ -22,6 +25,9 @@ router.get('/avatar/:id', getAvatar)
 router.put('/avatar', authMiddlewares.checkToken, updateAvatar)
 
 // USER FAVORITES
+router.get('/favorites', authMiddlewares.checkToken, getFavorites)
+router.post('/favorites/:id', authMiddlewares.checkToken, addFavorites)
+router.delete('/favorites/:id', authMiddlewares.checkToken, deleteFavorites)
 
 
 

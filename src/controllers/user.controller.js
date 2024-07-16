@@ -3,10 +3,10 @@ const upload = require("../middlewares/lib/multer")
 const APIError = require("../utils/Error")
 const Response = require("../utils/Response")
 const userModel = require('../models/user.model')
+const hostModel = require('../models/host.model')
 
 
 //* USER PROFILE 
-
 
 const getProfile = async (req,res) => {
     const user = await userModel.findById(req.params.id).select('name lastname email avatar location language school work about')
@@ -54,30 +54,65 @@ const updateAvatar = async (req,res) => {
             return new Response(result, "Avatar successfully updated.").ok(res)
         }
     })
-    
-    
 
 }
 
 
 
 //* USER FAVORITES
-const listFavorites = async(req,res) => {
+const getFavorites = async(req,res) => {
+    const user = await userModel.findById(req.authUser._id)
+    if (!user) return new Response(null, 'user not found').notfound(res)
 
+    const favorites = await userModel.findById(user._id).select('favorites')  //* favorite control
+    console.log(favorites)
+    if(favorites.favorites.length === 0 ) return new Response(null, 'users favorites list is empty').badRequest(res)
+
+    const host = await hostModel.find( {_id : {$in : favorites.favorites}} ).select('location hostType numberOfGuests price images') //* list favorites
+    return new Response(host, 'users favorites').ok(res)
 }
 
 const addFavorites = async(req,res) => {
+    const user = await userModel.findById(req.authUser._id)
+    if (!user) return new Response(null, 'user not found').notfound(res)
 
+    const hostId = req.params.id //* host id
+
+    const host = await hostModel.findOne({_id : hostId}) //* host control
+    if(!host) return new Response(null, 'host not found').notfound(res)
+
+    let hostControl = await userModel.findById(user._id).select('favorites') //* daha önce favorilere eklenmiş ise tekrar ekleme
+    hostControl = hostControl.favorites
+    if(hostControl.includes(host._id)) throw new APIError('a place already added to favorites.', 400)
+    
+    user.favorites.push(host._id) //* favorilere ekle.
+    await user.save()
+    .then(data => {
+        return new Response(null, 'added favorites').ok(res)
+    }).catch(err => {
+        throw new APIError('error! an error occurred while adding to favorites', 500)
+    })
 }
 
 const deleteFavorites = async(req,res) => {
+    const user = await userModel.findById(req.authUser._id)
+    if (!user) return new Response(null, 'user not found').notfound(res)
+
+    let favorites = await userModel.findById(user._id).select('favorites')
+    favorites = favorites.favorites
+    if(favorites.length === 0) throw new APIError('favorite place not found to delete', 404)
+
+    const hostId = req.params.id //* silinecek mekanı çıkartarak yeni dizi oluşturduk
+   
+    const newFavorites = favorites.filter(data => data.toString() !== hostId)
+    console.log('newFavoritessssssssssss', newFavorites)
+
+    user.favorites = newFavorites //* favorites'i yeni diziyle güncelledik.
+    await user.save()
+    .then(data => {return new Response(null, 'deletion successfull').ok(res)})
+    .catch(err => {throw new APIError('error occurred during deletion', 500)})
 
 }
-
-
-
-
-
 
 
 const uploadAvatar = async(req,res) => {
@@ -111,5 +146,13 @@ const uploadImages = async(req,res) => {
 
 
 module.exports = {
-    uploadAvatar,uploadImages,getProfile,editProfile, getAvatar, updateAvatar
+    uploadAvatar,
+    uploadImages,
+    getProfile,
+    editProfile,
+    getAvatar,
+    updateAvatar,
+    getFavorites,
+    addFavorites,
+    deleteFavorites
 }
