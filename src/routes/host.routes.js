@@ -14,9 +14,11 @@ const {
 
 
 router.post('/', authMiddlewares.checkToken, addHost)
+router.put('/:id', authMiddlewares.checkToken, editHost)
 router.delete('/:id', authMiddlewares.checkToken, deleteHost)
 router.get('/', getAllHost)
 router.get('/filter', getHostByFilter)
 router.get('/:id', getHostById)
+
 
 module.exports = router

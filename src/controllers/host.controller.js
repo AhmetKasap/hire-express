@@ -38,7 +38,33 @@ const addHost = async(req,res) => {
 }
 
 const editHost = async(req,res) => {
-   
+    const user = await userModel.findById(req.authUser._id)
+    if (!user) return new Response('null', 'not found user').notfound(res)
+
+    const hostId = await hostModel.findById(req.params.id)
+    if(!hostId) return new Response(null, 'not found host').notfound(res)
+    
+    upload.images(req,res, async function(err) {
+        if (err instanceof multer.MulterError) {
+            return new Response(null, "An error caused by multer.").internalServerError(res)
+        }
+        else if (err) {
+            return new Response(null, err.message).badRequest(res)
+        }
+        else {
+            const data = JSON.parse(req.body.data)
+            const dataForUpdate = {
+                ...data,
+                savedImages: req.savedImages
+            };
+            console.log(dataForUpdate)
+            await hostModel.findByIdAndUpdate(req.params.id, dataForUpdate, { new: true })
+            .then(data => new Response(data, 'updated host').ok(res))
+            .catch(err => new Response(err, err).internalServerError)
+            
+        }
+    })
+
 
 }
 
@@ -62,7 +88,14 @@ const getHostById = async(req,res) => {
 }
 
 const getHostByFilter = async(req,res) => { 
-    console.log(req.query)
+    const host = await hostModel.find({
+        location: req.query.location,
+        hostType: req.query.hostType,
+        numberOfGuests:  req.query.numberOfGuests,
+        price: { $gte: req.query.minPrice, $lte: req.query.maxPrice }
+    })
+    if (!host.length) return new Response(null, 'No record found as a result of filtering').ok(res)
+    else return new Response(host, 'Places found as a result of filtering').ok(res)
 
 }
 
@@ -71,7 +104,8 @@ const getAllHost = async(req,res) => {
     if (allHost) return new Response(allHost, 'all host').ok(res)
 }
 
-const getPopularHost = async(req,res) => {
+const getPopularHostForMainPage = async(req,res) => {
+
 
 }
 
@@ -84,7 +118,7 @@ module.exports = {
     getHostById,
     getHostByFilter,
     getAllHost,
-    getPopularHost
+    getPopularHostForMainPage
 }
 
 
