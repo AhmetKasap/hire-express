@@ -8,8 +8,8 @@ router.use('/auth',authRoutes)
 const userRoutes = require('./user.routes')
 router.use('/users', userRoutes)
 
-const listingRoutes = require('./listing.routes')
-router.use('/listing', listingRoutes)
+const listingRoutes = require('./host.routes')
+router.use('/host', listingRoutes)
 
 
 module.exports = router

@@ -37,7 +37,8 @@ const getAvatar = async (req,res) => {
 }
 
 const updateAvatar = async (req,res) => {
-
+    console.log(req.body.avatar)
+    
     const user = await userModel.findById(req.authUser._id)
     if (!user) return new Response(null, 'user not found').notfound(res)
 
@@ -49,7 +50,7 @@ const updateAvatar = async (req,res) => {
             return new Response(null, err.message).badRequest(res)
         }
         else {
-            const result = await userModel.findByIdAndUpdate(user._id, {$set : {'avatar' : req.savedImages[0]}}, { new: true })
+            const result = await userModel.findByIdAndUpdate(user._id, {$set : {'avatar' : req.savedImages}}, { new: true })
             return new Response(result, "Avatar successfully updated.").ok(res)
         }
     })

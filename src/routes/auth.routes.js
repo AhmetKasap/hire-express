@@ -12,6 +12,7 @@ const {
     resetPasswordController
 } = require('../controllers/auth.controller')
 
+
 const {registerValidation,loginValidation} = require('../middlewares/validations/auth.validations')
 
 const authMiddlewares = require('../middlewares/auth.middlewares')
