@@ -6,6 +6,7 @@ const mail = require('../helpers/sendMail')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const authMiddlewares = require('../middlewares/auth.middlewares')
+const hostModel = require('../models/host.model')
 
 
 
@@ -44,7 +45,10 @@ const accountDeleteController = async(req,res) => {
 
     if(timeDiff >=0 && req.body.code){
         const deletedAccount = await userModel.findByIdAndDelete(user._id)
-        if(deletedAccount) return new Response(null, 'sorry you left your account has been closed').ok(res)
+        if(deletedAccount) {
+            await hostModel.deleteMany({userRef : user._id})
+            return new Response(null, 'sorry you left your account has been closed').ok(res)
+        }
     }
     else return new Response(false, 'Transmitted code timed out.').forbidden(res)
     
