@@ -4,6 +4,8 @@ const reservationModel = require('../models/reservation.model')
 const Response = require('../utils/Response')
 const APIError = require('../utils/Error')
 const sendMail = require('../helpers/sendMail')
+const schedule = require('node-schedule');
+
 
 
 const createResarvationController = async(req,res) => {
@@ -34,6 +36,19 @@ const createResarvationController = async(req,res) => {
     const result = await reservation.save()
     if(result) {
         await hostModel.findByIdAndUpdate(hostId, {status:"active"})
+
+        try {
+            schedule.scheduleJob(validEndDate, async () => {
+                await reservationModel.findByIdAndUpdate(result._id, { status: 'pending' })
+                await hostModel.findByIdAndUpdate(hostId, { status: 'passive' })
+            })
+            
+        } catch (error) {
+            throw new APIError('reservation and host status not updated', 500)
+        }
+        
+
+        return new Response(null, 'reservation created successfully').created(res)
     }
 
 }
