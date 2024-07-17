@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
     reset : {
         code : {type : String, default : null},
         time : {type : Date, default : null}
+    },
+    accountClosure : {
+        code : {type : String, default : null},
+        time : {type : Date, default : null}
     }
     
 })

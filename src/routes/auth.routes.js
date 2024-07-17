@@ -23,10 +23,6 @@ router.post('/register', registerValidation, registerController)
 router.post('/complete-registration', completeRegistrationController)
 router.post('/resend-verification-email', resendVerificationEmailController)
 
-router.post('/forgot-password', forgotPasswordController)
-router.post('/forgot-password-check', forgotPasswordCheckCodeController)
-router.post('/reset-password', resetPasswordController)
-
 router.get('/token-control-test', authMiddlewares.checkToken, tokenControlTestController)
 
 module.exports = router
