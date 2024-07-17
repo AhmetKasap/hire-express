@@ -14,5 +14,8 @@ router.use('/host', hostRoutes)
 const accountRoutes = require('./account.routes')
 router.use('/account', accountRoutes)
 
+const reservationRoutes = require('./reservation.routes')
+router.use('/reservation', reservationRoutes)
+
 
 module.exports = router

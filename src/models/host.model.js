@@ -7,6 +7,7 @@ const hostSchema = new mongoose.Schema({
     price : {type : Number, required : true},
     explanation : {type : String, required : true},
     images : {type : [String], required : true},
+    status: { type: String, enum: ['active', 'passive'], default: 'passive' },
 
     userRef : {type : mongoose.Schema.Types.ObjectId, ref : 'User'} //reference from user
 
