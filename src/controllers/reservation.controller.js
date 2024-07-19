@@ -26,6 +26,7 @@ const createResarvationController = async(req,res) => {
     const hostStatusControl = host.status
     if(hostStatusControl == 'active') return new Response(null, 'this host is currently unavailable').ok(res)
     
+    // create reservation
     const reservation = new reservationModel({
         userRef : user._id,
         hostRef : hostId,
@@ -47,7 +48,6 @@ const createResarvationController = async(req,res) => {
             throw new APIError('reservation and host status not updated', 500)
         }
         
-
         return new Response(null, 'reservation created successfully').created(res)
     }
 
