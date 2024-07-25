@@ -60,10 +60,11 @@ const createResarvationController = async(req,res) => {
         const chanel = await connection.createChannel()     
         await chanel.assertQueue('reservationQueue')              
     
-        chanel.sendToQueue('reservationQueue', Buffer.from(JSON.stringify(data)))
-        return new Response(null, "you are redirected to the payment page").ok(res)
+        chanel.sendToQueue('reservationQueue', Buffer.from(JSON.stringify(data)))   
     }
     await reservationRabbitMQ()
+    return new Response(null, "you are redirected to the payment page").ok(res)
+
 
 }
 
@@ -108,7 +109,6 @@ const reservationConfirmationController = async(req,res) =>{
                 } catch (error) {
                     throw new APIError('reservation and host status not updated', 500)
                 }
-                
                 chanel.ack(response)  
                 return new Response(null, 'reservation created successfully').created(res)
             }

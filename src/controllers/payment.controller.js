@@ -24,7 +24,6 @@ const createPayment = async(req,res) => {
         
         chanel.consume('reservationQueue', async (response) => {               
             const result = response.content.toString()
-            console.log(result)
             const data = JSON.parse(result);
             const host = data.host
             const validEndDate = data.validEndDate
@@ -48,9 +47,7 @@ const createPayment = async(req,res) => {
                     cardDate
                 })
                 await payment.save()
-            
                 return new Response(null, 'payment successful, confirming reservation...').ok(res)
-
             }
 
         })
