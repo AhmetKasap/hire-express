@@ -31,6 +31,7 @@ app.use(bodyParser.json())
 const cron = require('./src/helpers/cron')
 cron()
 
+
 //! Routes and ErrorHandler
 const routes = require('./src/routes/index.routes')
 app.use('/api/v1',routes)

@@ -1,10 +1,39 @@
 const crypto = require('crypto');
 const microtime = require('microtime');
 const APIError = require('../utils/Error');
-require('dotenv').config();
+require('dotenv').config()
+const amqp = require('amqplib')
+const rabbitmqConnection = require('../services/RabbitMQ/RabbitMQ.connection')
+
 
 const createPayment = async(req,res) => {
+    const paymentRabbitMQ = async () => {
+        const connection = await rabbitmqConnection()
+        const chanel = await connection.createChannel()           //* rabbitmq ile bağlantı kurmak için kanal oluşturduk
+        await chanel.assertQueue('reservationQueue')
+        await chanel.assertQueue('paymentResultQueue')
+        
+        chanel.consume('reservationQueue', (response) => {               //* reservationQueue chanell(kanalı) aracılğıyla kuyruktan gelen mesajı yakalıyoruz.
+            const host = response.content.toString()
+            
+            const paymentSuccess = true
+
+            if(paymentSuccess === true) {
+                chanel.ack(response) //* kuyruktan gelen messaj okundu olarak işaretleniyor.
+                chanel.sendToQueue('paymentResultQueue', Buffer.from(JSON.stringify({
+                    host: host, 
+                    message: 'success'
+                })))
+                console.log("ödeme basarili")
+
+
+            }
+
+        })
     
+    }
+    
+    await paymentRabbitMQ()
 
 }
 

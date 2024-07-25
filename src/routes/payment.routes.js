@@ -6,7 +6,7 @@ const {
     createPayment
 } = require('../controllers/payment.controller')
 
-router.get('/',  createPayment)
+router.post('/', authMiddlewares.checkToken, createPayment)
 
 
 
