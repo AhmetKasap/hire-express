@@ -4,29 +4,37 @@ const APIError = require('../utils/Error');
 require('dotenv').config()
 const amqp = require('amqplib')
 const rabbitmqConnection = require('../services/RabbitMQ/RabbitMQ.connection')
+const Response = require('../utils/Response')
 
 
 const createPayment = async(req,res) => {
     const paymentRabbitMQ = async () => {
         const connection = await rabbitmqConnection()
-        const chanel = await connection.createChannel()           //* rabbitmq ile bağlantı kurmak için kanal oluşturduk
+        const chanel = await connection.createChannel()           
         await chanel.assertQueue('reservationQueue')
         await chanel.assertQueue('paymentResultQueue')
         
-        chanel.consume('reservationQueue', (response) => {               //* reservationQueue chanell(kanalı) aracılğıyla kuyruktan gelen mesajı yakalıyoruz.
-            const host = response.content.toString()
+        chanel.consume('reservationQueue', (response) => {               
+            const result = response.content.toString()
+            console.log(result)
+            const data = JSON.parse(result);
+            const host = data.host
+            const validEndDate = data.validEndDate
+            const validStartDate = data.validStartDate
+
             
             const paymentSuccess = true
 
             if(paymentSuccess === true) {
-                chanel.ack(response) //* kuyruktan gelen messaj okundu olarak işaretleniyor.
+                chanel.ack(response) 
                 chanel.sendToQueue('paymentResultQueue', Buffer.from(JSON.stringify({
-                    host: host, 
-                    message: 'success'
+                    host, 
+                    message: 'success',
+                    validEndDate,
+                    validStartDate
                 })))
-                console.log("ödeme basarili")
 
-
+                return new Response(null, 'payment successful, confirming reservation...').ok(res)
             }
 
         })

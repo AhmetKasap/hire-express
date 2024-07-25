@@ -47,68 +47,72 @@ const createResarvationController = async(req,res) => {
     const hostStatusControl = host.status
     if(hostStatusControl == 'active') return new Response(null, 'this host is currently unavailable').ok(res)
 
-    //ödeme sayfasına yönlenmeli 
+    
+    //? redirect payment controller
+    const data = {
+        host,
+        validStartDate,
+        validEndDate
+    }
 
     const reservationRabbitMQ = async () => {
         const connection = await rabbitmqConnection()
-        const chanel = await connection.createChannel()     //* rabbitmq ile bağlantı kurmak için kanal oluşturduk
-        await chanel.assertQueue('reservationQueue')              //* 
+        const chanel = await connection.createChannel()     
+        await chanel.assertQueue('reservationQueue')              
     
-        chanel.sendToQueue('reservationQueue', Buffer.from(JSON.stringify(host))) //* host değişkenini bufer tipine çevirip kuyruğa gönderiyoruz. reservationQueue'yi channel(kanalı) aracılığıyla kuğruga gönderiyoruz.
-        return new Response(null, "ödeme sayfasına yönlendiriliyorsunuz").ok(res)
+        chanel.sendToQueue('reservationQueue', Buffer.from(JSON.stringify(data)))
+        return new Response(null, "you are redirected to the payment page").ok(res)
     }
     await reservationRabbitMQ()
-
-    /*
-    // create reservation
-    const reservation = new reservationModel({
-        userRef : user._id,
-        hostRef : hostId,
-        startDate : validStartDate,
-        endDate : validEndDate,
-        status : 'confirmed'
-    })
-    const result = await reservation.save()
-    if(result) {
-        await hostModel.findByIdAndUpdate(hostId, {status:"active"})
-
-        try {
-            schedule.scheduleJob(validEndDate, async () => {
-                await reservationModel.findByIdAndUpdate(result._id, { status: 'pending' })
-                await hostModel.findByIdAndUpdate(hostId, { status: 'passive' })
-            })
-            
-        } catch (error) {
-            throw new APIError('reservation and host status not updated', 500)
-        }
-        
-        return new Response(null, 'reservation created successfully').created(res)
-    }
-     */
-    
-    
 
 }
 
 const reservationConfirmationController = async(req,res) =>{
+    const user = await userModel.findById(req.authUser._id)
+
     const paymentResultRabbitMQ = async () => {
         const connection = await rabbitmqConnection()
-        const chanel = await connection.createChannel()     //* rabbitmq ile bağlantı kurmak için kanal oluşturduk
-        await chanel.assertQueue('paymentResultQueue')              //* 
+        const chanel = await connection.createChannel()    
+        await chanel.assertQueue('paymentResultQueue')              
     
-        chanel.consume('paymentResultQueue', (response) => {               //* messageQue chanell(kanalı) aracılğıyla kuyruktan gelen mesajı yakalıyoruz.
-            const result = response.content.toString()
-            const data = JSON.parse(result);
-            const host = JSON.parse(data.host)
+        chanel.consume('paymentResultQueue', async (response) => {               
+            const responseData = response.content.toString()
+            const data = JSON.parse(responseData);
+            const host = data.host
+            const validEndDate = data.validEndDate
+            const validStartDate = data.validStartDate
 
-            if(data.message==="success") {
-                console.log(" burada artık reservasyonu onaylayacağız",host._id)
+            if(data.message !=="success") {
+                throw new APIError('error in payment information', 400)
             }
 
-            chanel.ack(response)  //* kuyruktan gelen messaj okundu olarak işaretleniyor.s
+            // confirmation reservation
+            const reservation = new reservationModel({
+                userRef : user._id,
+                hostRef : host._id,
+                startDate : validStartDate,
+                endDate : validEndDate,
+                status : 'confirmed'
+            })
+            const result = await reservation.save()
+            if(result) {
+                await hostModel.findByIdAndUpdate(host._id, {status:"active"})
+        
+                try {
+                    schedule.scheduleJob(validEndDate, async () => {
+                        await reservationModel.findByIdAndUpdate(result._id, { status: 'pending' })
+                        await hostModel.findByIdAndUpdate(host._id, { status: 'passive' })
+                    })
+                    
+                } catch (error) {
+                    throw new APIError('reservation and host status not updated', 500)
+                }
+                
+                return new Response(null, 'reservation created successfully').created(res)
+            }
+            chanel.ack(response)  
         })
 
-        
     }
     
     await paymentResultRabbitMQ()
