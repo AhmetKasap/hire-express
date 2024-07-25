@@ -83,6 +83,7 @@ const reservationConfirmationController = async(req,res) =>{
             const validStartDate = data.validStartDate
 
             if(data.message !=="success") {
+                chanel.ack(response)  
                 throw new APIError('error in payment information', 400)
             }
 
@@ -108,9 +109,9 @@ const reservationConfirmationController = async(req,res) =>{
                     throw new APIError('reservation and host status not updated', 500)
                 }
                 
+                chanel.ack(response)  
                 return new Response(null, 'reservation created successfully').created(res)
             }
-            chanel.ack(response)  
         })
 
     }

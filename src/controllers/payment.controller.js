@@ -5,36 +5,52 @@ require('dotenv').config()
 const amqp = require('amqplib')
 const rabbitmqConnection = require('../services/RabbitMQ/RabbitMQ.connection')
 const Response = require('../utils/Response')
+const paymentModel = require('../models/payment.model')
+const userModel = require('../models/user.model')
 
 
 const createPayment = async(req,res) => {
+    const user = await userModel.findById(req.authUser._id)
+    const cardName = req.body.cardName
+    const cardNumber = req.body.cardNumber
+    const cardCvv = req.body.cardCvv
+    const cardDate = req.body.cardDate
+
     const paymentRabbitMQ = async () => {
         const connection = await rabbitmqConnection()
         const chanel = await connection.createChannel()           
         await chanel.assertQueue('reservationQueue')
         await chanel.assertQueue('paymentResultQueue')
         
-        chanel.consume('reservationQueue', (response) => {               
+        chanel.consume('reservationQueue', async (response) => {               
             const result = response.content.toString()
             console.log(result)
             const data = JSON.parse(result);
             const host = data.host
             const validEndDate = data.validEndDate
             const validStartDate = data.validStartDate
+        
 
-            
-            const paymentSuccess = true
-
-            if(paymentSuccess === true) {
+            if(host.price == host.price) { // for testting
                 chanel.ack(response) 
                 chanel.sendToQueue('paymentResultQueue', Buffer.from(JSON.stringify({
-                    host, 
+                    host : host, 
                     message: 'success',
                     validEndDate,
                     validStartDate
                 })))
-
+                const payment = new paymentModel({
+                    userRef : user._id,
+                    hostRef : host._id,
+                    cardName,
+                    cardNumber,
+                    cardCvv,
+                    cardDate
+                })
+                await payment.save()
+            
                 return new Response(null, 'payment successful, confirming reservation...').ok(res)
+
             }
 
         })
@@ -43,6 +59,7 @@ const createPayment = async(req,res) => {
     
     await paymentRabbitMQ()
 
+    
 }
 
 
