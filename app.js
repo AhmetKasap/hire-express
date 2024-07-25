@@ -34,7 +34,8 @@ cron()
 
 //! Routes and ErrorHandler
 const routes = require('./src/routes/index.routes')
-app.use('/api/v1',routes)
+app.use(`/${process.env.NAME}/${process.env.VERSION}`, routes)
+
 
 app.use((req,res, next) => {
     res.send('not found url')

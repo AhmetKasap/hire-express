@@ -7,14 +7,15 @@ const rabbitmqConnection = require('../services/RabbitMQ/RabbitMQ.connection')
 const Response = require('../utils/Response')
 const paymentModel = require('../models/payment.model')
 const userModel = require('../models/user.model')
+const bcrypt = require('bcrypt')
 
 
-const createPayment = async(req,res) => {
+const createPaymentController = async(req,res) => {
     const user = await userModel.findById(req.authUser._id)
-    const cardName = req.body.cardName
-    const cardNumber = req.body.cardNumber
-    const cardCvv = req.body.cardCvv
-    const cardDate = req.body.cardDate
+    const cardName = await bcrypt.hash(req.body.cardName,10)
+    const cardNumber = await bcrypt.hash(req.body.cardNumber,10)
+    const cardCvv = await bcrypt.hash(req.body.cardCvv,10)
+    const cardDate = await bcrypt.hash(req.body.cardDate,10)
 
     const paymentRabbitMQ = async () => {
         const connection = await rabbitmqConnection()
@@ -59,9 +60,15 @@ const createPayment = async(req,res) => {
     
 }
 
+//receive a refund as a result of reservation cancellation
+const refundController = async(req,res) => {
+
+}
+
 
 module.exports = {
-    createPayment
+    createPaymentController,
+    refundController
 }
 
 

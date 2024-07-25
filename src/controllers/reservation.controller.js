@@ -120,10 +120,26 @@ const reservationConfirmationController = async(req,res) =>{
 }
 
 
+const editReservationController = async(req,res) => {
+
+}
+
+const cancelReservationController = async(req,res) => {
+
+}
+
+const getReservationController = async(req,res) => {
+
+}
+
+
 
 
 module.exports = {
     validationReservationController,
     createResarvationController,
-    reservationConfirmationController
+    reservationConfirmationController,
+    editReservationController,
+    cancelReservationController,
+    getReservationController
 }

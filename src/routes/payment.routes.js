@@ -3,10 +3,10 @@ const router = express.Router()
 const authMiddlewares = require('../middlewares/auth.middlewares')
 
 const {
-    createPayment
+    createPaymentController
 } = require('../controllers/payment.controller')
 
-router.post('/', authMiddlewares.checkToken, createPayment)
+router.post('/', authMiddlewares.checkToken, createPaymentController)
 
 
 
