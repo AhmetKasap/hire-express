@@ -31,6 +31,9 @@ app.use(bodyParser.json())
 const cron = require('./src/helpers/cron')
 cron()
 
+//! elasticsearch index
+const createIndex = require('./src/services/Elasticsearch/model/elastic.host.index')
+createIndex()
 
 //! Routes and ErrorHandler
 const routes = require('./src/routes/index.routes')
