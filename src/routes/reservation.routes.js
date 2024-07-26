@@ -5,13 +5,17 @@ const authMiddlewares = require('../middlewares/auth.middlewares')
 const {
     createResarvationController,
     validationReservationController,
-    reservationConfirmationController
+    reservationConfirmationController,
+    getReservationController,
+    getByIdReservationController,
+    cancelReservationController
 } = require('../controllers/reservation.controller')
 
 router.get('/confirmation', authMiddlewares.checkToken, reservationConfirmationController)
-router.get('/:id', validationReservationController)
+router.get('/validate/:id', validationReservationController)
 router.post('/:id', authMiddlewares.checkToken, createResarvationController)
-
-
+router.get('/:id', authMiddlewares.checkToken, getByIdReservationController)
+router.get('/', authMiddlewares.checkToken, getReservationController)
+router.get('/cancel/:id', authMiddlewares.checkToken, cancelReservationController)
 
 module.exports = router

@@ -9,8 +9,6 @@ const amqp = require('amqplib')
 const rabbitmqConnection = require('../services/RabbitMQ/RabbitMQ.connection')
 
 
-
-
 const validationReservationController = async(req,res) => {
     const hostId = req.params.id
     const host = await hostModel.findById(hostId)
@@ -120,18 +118,74 @@ const reservationConfirmationController = async(req,res) =>{
 }
 
 
-const editReservationController = async(req,res) => {
-
-}
-
 const cancelReservationController = async(req,res) => {
+    //1 gün öncesinden iptal edilebilir.
+
+    const user = await userModel.findById(req.authUser._id)
+    if(!user) return new Response(null, 'user not found').notfound(res)
+
+    const reservation = await reservationModel.find({userRef : user._id, _id : req.params.id, status:"confirmed"})
+    if(reservation.length<=0) return new Response(null, 'not found reservation').notfound(res)
+
+    const host = await hostModel.findOne({_id : reservation[0].hostRef})
+    if(host ===null) throw new APIError('not found host', 404)
+    
+    const validStartDate = new Date(reservation.startDate)
+    const now = new Date()
+
+    if((validStartDate.getTime()<=now)) return new Response(null,'Cancellation cannot be made because the reservation has started.').badRequest(res)
+    
+    //cancellation process
+
+    await reservationModel.findByIdAndUpdate(reservation._id, {status : "cancelled"})
+    await hostModel.findByIdAndUpdate(host._id, {status : "passive"})
+
+    //refund process
+    return new Response(null, 'canceled, the payment amount has been transferred to your account').ok(res)
 
 }
 
 const getReservationController = async(req,res) => {
+    const user = await userModel.findById(req.authUser._id)
+    if(!user) return new Response(null, 'user not found').notfound(res)
 
+    const reservation = await reservationModel.find({userRef : user.id})
+    if(reservation.length<=0) return new Response(null, 'not found reservation').notfound(res)
+    
+    const hostRefs = reservation.map(data => data.hostRef)
+
+    const hosts = await hostModel.find({ _id: { $in: hostRefs } })
+    console.log(hosts)
+    
+    const data = {
+        reservation,
+        hosts
+    }
+   return new Response(data, "found reservation").ok(res)
+    
 }
 
+const getByIdReservationController = async(req,res) => {
+    const user = await userModel.findById(req.authUser._id)
+    if(!user) return new Response(null, 'user not found').notfound(res)
+
+    const reservation = await reservationModel.find({userRef : user._id, _id : req.params.id})
+    if(reservation.length<=0) return new Response(null, 'not found reservation').notfound(res)
+
+    const host = await hostModel.findOne({_id : reservation[0].hostRef})
+    if(host ===null) throw new APIError('not found host', 404)
+    
+    const data = {
+        reservation,
+        host
+    }
+
+    return new Response(data, 'found reservation').ok(res)
+}
+
+const editReservationController = async(req,res) => {
+
+}
 
 
 
@@ -141,5 +195,6 @@ module.exports = {
     reservationConfirmationController,
     editReservationController,
     cancelReservationController,
-    getReservationController
+    getReservationController,
+    getByIdReservationController
 }
