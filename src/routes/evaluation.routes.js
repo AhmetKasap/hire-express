@@ -14,6 +14,7 @@ const {
 router.get('/:id', getEvaluationController)
 router.post('/',  authMiddlewares.checkToken, createEvaluationController)
 router.delete('/:id', authMiddlewares.checkToken, deleteEvaluationController)
+router.put('/',  authMiddlewares.checkToken, editEvaluationController)
 
 
 

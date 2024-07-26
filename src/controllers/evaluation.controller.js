@@ -38,6 +38,30 @@ const createEvaluationController = async(req,res) => {
 
 }
 
+
+const editEvaluationController = async (req,res) => {
+    const user = await userModel.findById(req.authUser._id)
+    if (!user) throw new APIError('user not found', 404)
+
+    const reservationId = req.body.reservationId
+    const reservation = await reservationModel.findOne({ _id: reservationId, userRef: user._id })
+    if (!reservation) throw new APIError('error', 401)
+  
+    const evaluation = await evaluationModel.findOne({ hostRef: reservation.hostRef, userRef: user._id })
+    if (!evaluation) throw new APIError('evaluation not found', 404);
+
+    const updatedEvaluation = await evaluationModel.findOneAndUpdate(
+        { _id: req.body.evaluationId, userRef: user._id, hostRef: reservation.hostRef },
+        { evaluation: req.body.evaluation, score: req.body.score },
+        { new: true } 
+    )
+
+    if (!updatedEvaluation) throw new APIError('evaluation not found', 404)
+
+    return new Response(updatedEvaluation, "evaluation updated successfully").ok(res)
+
+}
+
 const deleteEvaluationController = async(req,res) => {
     const user = await userModel.findById(req.authUser._id)
     if(!user) throw new APIError('user not found', 404)
@@ -48,11 +72,6 @@ const deleteEvaluationController = async(req,res) => {
     if(deletedEvaluation.deletedCount ===1) return new Response(null, 'evaluation deleted')
     else throw new APIError('not found evaluation', 404)
     
-}
-
-const editEvaluationController = async (req,res) => {
-    
-
 }
 
 
