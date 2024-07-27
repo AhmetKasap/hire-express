@@ -6,6 +6,8 @@ const crypto = require('crypto')
 const mail = require('../helpers/sendMail')
 const authMiddlewares = require('../middlewares/auth.middlewares')
 const moment = require('moment')
+const cache = require('../services/Redis/user.cache')
+
 
 const registerController = async(req,res) => {
   
@@ -76,6 +78,8 @@ const loginController = async(req,res,next) => {
 
     if( (user.verificationAccount.verifiedAccount===true) && await bcrypt.compare(req.body.password, user.password)) {
         authMiddlewares.createToken(user,res)
+       
+        await cache.createUserCache(user)  //added cache
         //return new Response(user, "login successfull").ok(res)
 
     }

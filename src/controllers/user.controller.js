@@ -13,10 +13,11 @@ const getProfile = async (req,res) => {
 
     if(!user) throw new APIError("not found user", 404)
     else {
-        //const data = await cache.createUserCache(user)
-        //const cached = await cache.getUserCache(user)
-        //console.log("cache", cached)
-        return new Response(user, "user profile").ok(res)
+        const cached = await cache.getUserCache(user)
+        //const cached = await cache.deleteUserCache(user)
+        
+        if(cached) return new Response(cached, "user profile").ok(res)
+        else return new Response(user, "user profile").ok(res)
     }
 }
 
@@ -27,6 +28,7 @@ const editProfile = async(req,res) => {
     if(!user) return new Response('you are not authorized for this operation')
     
     const updatedProfile = await userModel.findByIdAndUpdate(user._id, updateInfo , { new: true }).select('name lastname email avatar location language school work about')
+    await cache.createUserCache(user)
     return new Response(updatedProfile,'updated user profile information').ok(res)
 
 }
