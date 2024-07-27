@@ -31,6 +31,26 @@ const addHost = async (hostData) => {
     
 }
 
+const deleteHost = async () => {
+
+}
+
+
+const updateHost = async () => {
+
+}
+
+
+const getHostById = async () => {
+
+}
+
+const getHostByFilter = async() => {
+
+}
+
+
+
 const getAllHost = async() => {
   try {
     const response = await client.search({
@@ -48,6 +68,9 @@ const getAllHost = async() => {
   }
   
 }
+
+
+//rezervasyon yapıldığında host status güncelleniyor onu unutma
 
 
 

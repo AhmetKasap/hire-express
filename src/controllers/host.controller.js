@@ -7,9 +7,6 @@ const APIError = require('../utils/Error')
 const elastic = require('../services/Elasticsearch/query/elastic.host.query')
 
 
-
-
-
 const addHost = async(req,res) => { 
     const user = await userModel.findById(req.authUser._id)
     if (!user) return new Response('null', 'not found user').notfound(res)

@@ -4,7 +4,7 @@ const APIError = require("../utils/Error")
 const Response = require("../utils/Response")
 const userModel = require('../models/user.model')
 const hostModel = require('../models/host.model')
-
+const cache = require('../services/Redis/user.cache')
 
 //* USER PROFILE 
 
@@ -12,7 +12,12 @@ const getProfile = async (req,res) => {
     const user = await userModel.findById(req.params.id).select('name lastname email avatar location language school work about')
 
     if(!user) throw new APIError("not found user", 404)
-    else return new Response(user, "user profile").ok(res)
+    else {
+        //const data = await cache.createUserCache(user)
+        //const cached = await cache.getUserCache(user)
+        //console.log("cache", cached)
+        return new Response(user, "user profile").ok(res)
+    }
 }
 
 const editProfile = async(req,res) => {
