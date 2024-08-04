@@ -1,1 +1,1 @@
-![architecture](https://github.com/user-attachments/assets/5c05f69d-d5f5-47ba-8eed-c70b7408676c)
+![architecture-software](https://github.com/user-attachments/assets/2942e10b-cf68-42d4-a2c4-e799bbdeb79d)
