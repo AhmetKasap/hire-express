@@ -33,7 +33,7 @@ cron()
 
 //! elasticsearch index
 const createIndex = require('./src/services/Elasticsearch/model/elastic.host.index')
-//createIndex()
+createIndex()
 
 
 //! Routes and ErrorHandler

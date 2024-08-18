@@ -19,7 +19,6 @@ const addHost = async(req,res) => {
             return new Response(null, err.message).badRequest(res)
         }
         else {
-            console.log("req.saved.images",req.savedImages)
             const data = JSON.parse(req.body.data)
             const host = new hostModel({
                 location : data.location,
@@ -81,16 +80,48 @@ const deleteHost = async(req,res) => {
     if(!listing) return new Response(null, 'no record listing found').notfound(res)
     
     const deletedHost = await hostModel.findByIdAndDelete(listing._id)
-    if(deletedHost) return new Response(null, 'deleted host').ok(res)
+    if(deletedHost) {
+        elastic.deleteHost(listing._id)
+        return new Response(null, 'deleted host').ok(res)
+    }
     
 }
 
 
 const getHostById = async(req,res) => {
-    const host = await hostModel.findById(req.params.id)
+    /*
+        const host = await hostModel.findById(req.params.id)
     if(!host) return new Response(null, 'no record listing found').notfound(res)
     else return new Response(host, 'found host').ok(res)
+
+    */
+
+    const host = await elastic.getHostById(req.params.id)
+    if(!host) return new Response(null, 'no record listing found').notfound(res)
+    else return new Response(host, 'found host').ok(res)
+
 }
+
+const getHostByUserId = async(req,res) => {
+
+}
+
+const getAllHost = async(req,res) => {
+  
+    //elasticsearch query
+    const allHosts = await elastic.getAllHost()
+    
+    if(allHosts.length<=0) return new Response(null, 'not found host').notfound(res)
+
+    const cleanAllHosts = await allHosts.map(data => {
+        return data._source
+    })
+    
+    if(allHosts) return new Response(cleanAllHosts, 'all host').ok(res)
+   
+}
+
+
 
 const getHostByFilter = async(req,res) => { 
     const host = await hostModel.find({
@@ -104,27 +135,7 @@ const getHostByFilter = async(req,res) => {
 
 }
 
-const getAllHost = async(req,res) => {
-    /*
-    MONGODB QUERY
-    const allHost = await hostModel.find()
-    if (allHost) return new Response(allHost, 'all host').ok(res)
 
-    */
-
-    //elasticsearch query
-    const allHosts = await elastic.getAllHost()
-    
-    if(allHosts.length<=0) return new Response(null, 'not found host').notfound(res)
-
-    const cleanAllHosts = await allHosts.map(data => {
-        return data._source
-    })
-    
-    if(allHosts) return new Response(cleanAllHosts, 'all host').ok(res)
-   
-    
-}
 
 const getPopularHostForMainPage = async(req,res) => {
 

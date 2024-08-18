@@ -1,4 +1,3 @@
-const { v4: uuidv4 } = require('uuid')
 const {createClient} = require('../connection/elastic.connection')
 const APIError = require('../../../utils/Error')
 
@@ -6,11 +5,10 @@ const client = createClient()
 
 
 const addHost = async (hostData) => {
-    const id = uuidv4()
     try {
       const result = await client.index({
         index: 'hosts',
-        id: id,
+        id: hostData._id,
         document: {
           location: hostData.location,
           hostType: hostData.hostType,
@@ -31,22 +29,50 @@ const addHost = async (hostData) => {
     
 }
 
-const deleteHost = async () => {
-
+const deleteHost = async (id) => {
+  const response = await client.delete({
+    index :"hosts",
+    id : id
+  })
+  return response
 }
 
 
-const updateHost = async () => {
+const updateHost = async (hostData) => {
+  return await client.update({
+    index : "hosts",
+    id : hostData._id,
+    doc : hostData
+  })
 
 }
 
-
-const getHostById = async () => {
+const getHostById = async(id) => {
+  return await client.get({
+    index : "hosts",
+    id : id
+  })
 
 }
 
-const getHostByFilter = async() => {
+const getAllHostByUserId = async(userId) => {
+  try {
+    const response = await client.search({
+      index: 'hosts',
+      body: {
+        query: {
+          match: {
+            userId: userId
+          }
+        }
+      }
+    });
 
+    return response.body.hits.hits; // İlgili hostları döndürür
+  } catch (error) {
+    console.error('Error getting hosts by userId:', error);
+    throw error;
+  }
 }
 
 
@@ -55,11 +81,10 @@ const getAllHost = async() => {
   try {
     const response = await client.search({
       index: "hosts", 
-      body: {
-        query: {
-          match_all: {} 
-        }
+      query : {
+        match_all : {}
       }
+      
     })
     return response.hits.hits
     
@@ -77,5 +102,9 @@ const getAllHost = async() => {
 
 module.exports = {
   addHost,
-  getAllHost
+  deleteHost,
+  updateHost,
+  getAllHost,
+  getHostById,
+  getAllHostByUserId
 }
