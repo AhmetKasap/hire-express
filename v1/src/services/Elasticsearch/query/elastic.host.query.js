@@ -95,7 +95,6 @@ const getAllHost = async() => {
 }
 
 
-//rezervasyon yapıldığında host status güncelleniyor onu unutma
 
 
 
