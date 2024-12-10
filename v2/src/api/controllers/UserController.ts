@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import TYPES from "../inversify/types";
+import TYPES from "../../inversify/types";
 import { IUserService } from "../services/interfaces/IUserService";
 import { Request, Response } from "express";
-import APIResponse from "../shared/utils/APIResponse";
+import APIResponse from "../../shared/utils/APIResponse";
 
 @injectable()
 export class UserController {

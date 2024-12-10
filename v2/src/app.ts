@@ -13,7 +13,7 @@ mongoDbConnection()
 
 //! routers
 
-import indexRouter from "./routers/index.routes";
+import indexRouter from "../src/api/routers/index.routes";
 app.use("/api/v1/", indexRouter);
 
 app.use((req : Request ,res : Response, next : NextFunction) => {

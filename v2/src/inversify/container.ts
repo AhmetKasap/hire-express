@@ -1,16 +1,17 @@
 // inversify.config.ts
 import { Container } from "inversify";
 import TYPES from "./types";
-import { UserController } from "../controllers/UserController";
-import { UserService } from "../services/UserService";
-import { UserRepository } from "../repositories/UserRepository";
-import { IUserService } from "../services/interfaces/IUserService";
-import { IUserRepository } from "../repositories/interfaces/IUserRepository";
-import { AuthController } from "../controllers/AuthController";
-import { IAuthService } from "../services/interfaces/IAuthService";
-import { AuthService } from "../services/AuthService";
-import { IAuthRepository } from "../repositories/interfaces/IAuthRepository";
-import { AuthRepository } from "../repositories/AuthRepository";
+import { IUserService } from "../api/services/interfaces/IUserService";
+import { IUserRepository } from "../api/repositories/interfaces/IUserRepository";
+import { AuthController } from "../api/controllers/AuthController";
+import { IAuthService } from "../api/services/interfaces/IAuthService";
+import { AuthService } from "../api/services/AuthService";
+import { IAuthRepository } from "../api/repositories/interfaces/IAuthRepository";
+import { AuthRepository } from "../api/repositories/AuthRepository";
+
+import { UserController } from "../api/controllers/UserController";
+import { UserService } from "../api/services/UserService";
+import { UserRepository } from "../api/repositories/UserRepository";
 
 const container = new Container();
 

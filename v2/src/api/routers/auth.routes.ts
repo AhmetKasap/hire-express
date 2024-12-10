@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/AuthController";
-import container from "../inversify/container";
-import TYPES from "../inversify/types";
+import container from "../../inversify/container";
+import TYPES from "../../inversify/types";
 
-import { registerValidation, loginValidation } from "../validations/auth.validations";
+import { registerValidation, loginValidation } from "../../validations/auth.validations";
 const authRouter = Router()
 
 const authController =  container.get<AuthController>(TYPES.AuthController)

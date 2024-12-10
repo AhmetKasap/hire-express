@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import TYPES from "../inversify/types";
+import TYPES from "../../inversify/types";
 import { IAuthService } from "../services/interfaces/IAuthService";
 import { Request, Response } from "express";
-import APIResponse from "../shared/utils/APIResponse";
+import APIResponse from "../../shared/utils/APIResponse";
 import { RegisterDTO } from "../dtos/auth/RegisterDTO";
 
 

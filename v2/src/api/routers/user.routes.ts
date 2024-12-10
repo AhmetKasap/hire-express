@@ -1,6 +1,6 @@
 import { Router } from "express";
-import container from "../inversify/container";
-import TYPES from "../inversify/types";
+import container from "../../inversify/container";
+import TYPES from "../../inversify/types";
 import { UserController } from "../controllers/UserController";
 
 const userRouter = Router();

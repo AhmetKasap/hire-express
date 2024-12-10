@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { IAuthService } from "./interfaces/IAuthService";
-import TYPES from "../inversify/types";
+import TYPES from "../../inversify/types";
 import { IAuthRepository } from "../repositories/interfaces/IAuthRepository";
 import { RegisterDTO } from "../dtos/auth/RegisterDTO";
 import { plainToInstance } from "class-transformer";
