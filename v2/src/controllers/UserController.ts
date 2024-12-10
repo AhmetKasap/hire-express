@@ -16,7 +16,9 @@ export class UserController {
     async createUser(req: Request, res: Response): Promise<void> {
         const { name, email, password } = req.body;
         const registerDTO = { name, email, password };
+
         const newUser = await this.userService.createUser(registerDTO);
+        
         new APIResponse("User created successfully", newUser).created(res);
     }
 }

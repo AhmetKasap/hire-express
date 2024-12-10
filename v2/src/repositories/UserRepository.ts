@@ -13,8 +13,8 @@ export class UserRepository implements IUserRepository {
         return UserModel.findById(id);
     }
 
-    async create(registerDTO : any): Promise<any> {
-        return UserModel.create(registerDTO);
+    async create(user : UserEntity): Promise<UserEntity> {
+        return UserModel.create(user);
     }
 
     async update(id: string, user: UserEntity): Promise<UserEntity | null> {

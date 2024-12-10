@@ -12,7 +12,9 @@ export class UserService implements IUserService {
         return this.userRepository.findAll();
     }
 
-    async createUser(registerDTO : any): Promise<any> {
-        return this.userRepository.create(registerDTO)
+    async createUser(registerDTO : object): Promise<any> {
+
+        //return this.userRepository.create(registerDTO)
     }
 }
+
