@@ -5,14 +5,14 @@ export class UserEntity {
     public  email: string,
     public  password: string,
     public  avatar?: string,
-    public  _id?: string, // MongoDB ObjectId
+    public  _id?: string, 
 
 
     public  location?: {
       city?: string;
       state?: string;
       country?: string;
-    }, // `location` nesne olarak düzenlendi
+    }, 
     public  language?: string[], 
     public  school?: string,
     public  work?: string,

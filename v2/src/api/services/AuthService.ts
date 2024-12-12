@@ -5,6 +5,9 @@ import { IAuthRepository } from "../repositories/interfaces/IAuthRepository";
 import { RegisterDTO } from "../dtos/auth/RegisterDTO";
 import { plainToInstance } from "class-transformer";
 import { UserEntity } from "../entities/UserEntity";
+import APIError from "../../shared/utils/APIError";
+
+import {generateToken, checkToken} from "../../middlewares/auth.middleware"
 
 @injectable()
 export class AuthService implements IAuthService{
@@ -22,8 +25,14 @@ export class AuthService implements IAuthService{
 
     }
 
+    async login(loginDTO : any) : Promise<string>{
 
-    async login() : Promise<any>{
+        const user = await this.authRepository.findByEmail(loginDTO.email)
+        if(!user) throw new APIError('user not found ', 404) 
+
+        if(user.password === loginDTO.password) return generateToken(user.email)
+        else throw new APIError('şifre hatalı', 400)
+        
 
     }
 }
