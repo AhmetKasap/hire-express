@@ -15,7 +15,7 @@ export class AuthController {
         const registerDTO : RegisterDTO = req.body
 
         const result = await this.authService.register(registerDTO)
-        if(result === true) new APIResponse("kayıt başarılı", null).created(res)
+        if(result === true) new APIResponse("registration successful", null).created(res)
     }
 
     async login (req : Request, res : Response) : Promise<void> {
@@ -25,7 +25,7 @@ export class AuthController {
 
         const token = {token : result}
 
-        if(result ) new APIResponse('login succesffuly', token).ok(res)
+        if(result) new APIResponse('login successfully', token).ok(res)
 
         
     }

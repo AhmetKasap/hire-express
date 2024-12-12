@@ -21,7 +21,7 @@ export class AuthService implements IAuthService{
         console.log(result)
 
         if(result ) return true
-        else throw new Error("hata")
+        else throw new Error("error")
 
     }
 
@@ -31,7 +31,7 @@ export class AuthService implements IAuthService{
         if(!user) throw new APIError('user not found ', 404) 
 
         if(user.password === loginDTO.password) return generateToken(user.email)
-        else throw new APIError('şifre hatalı', 400)
+        else throw new APIError('password error', 400)
         
 
     }
