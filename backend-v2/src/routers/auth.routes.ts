@@ -11,7 +11,7 @@ const authService = new AuthService()
 const authController = new AuthController(authService)
 
 authRouter.post('/register', registerValidation, authController.register.bind(authController))
-authRouter.post('/login', )
+authRouter.post('/login', loginValidation,authController.login.bind(authController))
 
 
 
