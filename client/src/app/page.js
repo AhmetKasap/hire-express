@@ -1,8 +1,12 @@
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
-   <>
-    test
-   </>
+   <div className="w-10/12 mx-auto">
+
+    <Navbar></Navbar>
+    
+
+   </div>
   );
 }

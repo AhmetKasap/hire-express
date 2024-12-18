@@ -2,6 +2,8 @@ import { UserModel } from "../models/User"
 import APIError from "../shared/utils/APIError"
 
 import { generateToken } from "../shared/helpers/generate.token"
+import bcrypt from "bcrypt"
+
 
 export class AuthService {
 
@@ -9,8 +11,10 @@ export class AuthService {
 
         const isUserAvailable = await UserModel.findOne({email : email})
         if(isUserAvailable) throw new APIError("user already registered",409)
+
+        const hashPassword = await bcrypt.hash(password,10)
         
-        const createNewUser = await UserModel.create({firstName,lastName,email,password})
+        const createNewUser = await UserModel.create({firstName,lastName,email, password : hashPassword})
         return createNewUser
 
     }
@@ -22,9 +26,12 @@ export class AuthService {
 
         if(!user) throw new APIError('user not found', 404)
 
-        if(user && user.password === password) {
+        const storedPassword = user.password as string
+
+        const isPasswordValid  = await bcrypt.compare(password, storedPassword)
+
+        if(user && isPasswordValid) {
             const token = await generateToken(email)
-            console.log(token)
             return token
         } else throw new APIError("Invalid credentials", 401)
 

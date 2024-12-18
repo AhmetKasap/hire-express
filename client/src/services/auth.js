@@ -1,12 +1,13 @@
 import axios from "axios";
+import { baseUrl } from "./constants";
 
 const loginService = async (email, password) => {
     try {
-        const response = await axios.post("http://localhost:5000/api/v1/auth/login", {
+        const response = await axios.post(`${baseUrl}/auth/login`, {
             email,
             password
         });
-        return response.data;
+        return response
     } catch (error) {
         console.error("Login failed:", error);
         throw error;
@@ -14,3 +15,4 @@ const loginService = async (email, password) => {
 };
 
 export { loginService };
+

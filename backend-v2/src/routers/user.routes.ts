@@ -4,13 +4,18 @@ const userRouter : Router = express.Router()
 import { UserService } from "../services/UserService"
 import { UserController } from "../controllers/UserController"
 import { tokenVerifiy } from "../middlewares/AuthMiddlewares"
-
-const userController = new UserController(UserService)
-
+import { avatar } from "../libs/Multer"
 
 
-userRouter.get('/', tokenVerifiy, userController.getProfile.bind(userController))
-userRouter.put('/', tokenVerifiy, userController.editProfile.bind(userController))
+const userService = new UserService()
+
+const userController = new UserController(userService)
+
+
+
+userRouter.get('/:id',  userController.getUserById.bind(userController))
+userRouter.put('/avatar', tokenVerifiy, avatar,  userController.editAvatar.bind(userController))
+
 
 
 export {userRouter}

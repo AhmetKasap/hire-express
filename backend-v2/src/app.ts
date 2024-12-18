@@ -2,10 +2,21 @@ import 'express-async-errors';
 import express, { NextFunction, Request, Response } from 'express';
 import 'dotenv/config'
 
+import path from "path";
+
+import corsConfig from './libs/Cors';
+import cors from "cors"
 const app = express();
 
+
+//!public file
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")))
+
+//!body parser
 app.use(express.json());
 
+//! cors
+app.use(cors(corsConfig))
 
 
 //!db connection

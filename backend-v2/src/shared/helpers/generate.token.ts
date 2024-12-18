@@ -6,7 +6,6 @@ import APIError from "../utils/APIError";
 
 
 const generateToken = async (email: string) => {
-    console.log(email)
     const payload = {
         email
     }

@@ -1,9 +1,17 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
+import 'dotenv/config';
 
 const mongoDbConnection = () => {
-    mongoose.connect("mongodb://localhost:27017/hire-express-v2")
-    .then(response => console.log("Database Connection Successfull"))
-    .catch(err => console.log("Database Connection Error"))
+    const connectionUrl = process.env.MONGODB_CONNECTIOIN_URL;
+    
+    if (!connectionUrl) {
+        console.error("MONGODB_CONNECTIOIN_URL is not defined in the environment variables")
+        return
+    }
+    
+    mongoose.connect(connectionUrl)
+        .then(() => console.log("Database Connection Successful"))
+        .catch(err => console.error("Database Connection Error:", err))
 }
 
-export {mongoDbConnection}
+export { mongoDbConnection }

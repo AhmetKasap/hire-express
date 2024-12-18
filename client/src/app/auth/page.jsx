@@ -1,21 +1,23 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 
+import { loginService } from '@/services/Auth'
+
 const page = () => {
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [result, setResult] = useState("")
 
-    console.log(email)
-    console.log(password)
+   
 
     
 
     const login = async() => {
       const response = await loginService(email,password)
-      setResult(response)
+      console.log("responseeeeeee", response)
     }
+
 
 
 
