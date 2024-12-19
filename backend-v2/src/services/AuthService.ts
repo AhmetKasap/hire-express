@@ -3,9 +3,11 @@ import APIError from "../shared/utils/APIError"
 
 import { generateToken } from "../shared/helpers/generate.token"
 import bcrypt from "bcrypt"
+import { sendAcountVerificationEmail } from "../libs/NodeMailer"
 
 
 export class AuthService {
+
 
     public async register(firstName : string, lastName : string, email : string, password : string) : Promise<object> {
 
@@ -15,12 +17,15 @@ export class AuthService {
         const hashPassword = await bcrypt.hash(password,10)
         
         const createNewUser = await UserModel.create({firstName,lastName,email, password : hashPassword})
+
+        //const result = await sendAcountVerificationEmail(createNewUser.email as string, "243")
+       
         return createNewUser
 
     }
 
 
-    public async login(email : string, password : string) : Promise<string> {
+    public async login(email : string, password : string) : Promise<any> {
 
         const user = await UserModel.findOne({email : email})
 
@@ -32,7 +37,7 @@ export class AuthService {
 
         if(user && isPasswordValid) {
             const token = await generateToken(email)
-            return token
+            return {token, user}
         } else throw new APIError("Invalid credentials", 401)
 
     }

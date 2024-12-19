@@ -7,12 +7,27 @@ const loginService = async (email, password) => {
             email,
             password
         });
-        return response
+        return response.data
     } catch (error) {
-        console.error("Login failed:", error);
-        throw error;
+        return error.response.data
     }
-};
+}
 
-export { loginService };
+
+const registerService = async(firstName, lastName, email, password) => {
+    try {
+        const response = await axios.post(`${baseUrl}/auth/register`, {
+            firstName,
+            lastName,
+            email,
+            password
+        })
+        return response.data
+        
+    } catch (error) {
+        return error.response.data
+    }
+}
+
+export { loginService,registerService }
 

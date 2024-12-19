@@ -19,10 +19,13 @@ export class AuthController {
 
     public async login(req : Request, res : Response) : Promise<void> {
 
-      const token = await this.authService.login(req.body.email, req.body.password)
-      const result = {token : token}
+      const result = await this.authService.login(req.body.email, req.body.password)
+      const obj = {
+        user : result.user,
+        token : result.token
+      }
 
-      new APIResponse("login successfuly", result).ok(res)
+      new APIResponse("login successfuly", obj).ok(res)
 
     }
 
