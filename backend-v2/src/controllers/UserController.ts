@@ -31,6 +31,25 @@ export class UserController {
 
     }
 
+    public async usersValidate(req : Request, res:Response) : Promise<void> {
+        const authorizedUser = res.locals.authUser
+
+        const user = await this.userService.usersValidate(authorizedUser._id)
+        if (user) new APIResponse('user verification successful ', user).ok(res)
+    }
+
+    public async editUser (req : Request, res : Response) : Promise<void> {
+        const authorizedUser = res.locals.authUser
+        const data = req.body
+
+        console.log(data)
+
+        const updatedUser = await this.userService.editUser(authorizedUser._id, data)
+        console.log(updatedUser)
+
+
+    }
+
 
 
 }

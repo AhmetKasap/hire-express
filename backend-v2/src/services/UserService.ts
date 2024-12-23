@@ -28,6 +28,43 @@ export class UserService {
         
     }
 
+    public async usersValidate (id : string) : Promise<any> {
+        const objectId = await mongodbIdCheck(id)
+
+        const user = await UserModel.findById(objectId)
+        if (!user) throw new APIError('User not found', 404)
+        
+        return user
+
+       
+    }
+
+    public async editUser(id : string, data : any) : Promise<any> {
+
+        const objectId = await mongodbIdCheck(id)
+
+        const user = await UserModel.findById(objectId)
+        if (!user) throw new APIError('User not found', 404)
+
+        const updatePayload  = {
+            location: {
+                country: data?.location?.country,
+                city: data?.location?.city,
+                state: data?.location?.state,
+              },
+              school: data?.school,
+              work: data?.work,
+              about: data?.about,
+              language: data?.language
+        }
+
+        const userUpdated = await UserModel.findByIdAndUpdate(objectId, updatePayload, { new: true } )
+        if(!userUpdated) throw new APIError('an error occurred during the update',500)
+        return userUpdated
+
+      
+    }
+
 
     
 }
