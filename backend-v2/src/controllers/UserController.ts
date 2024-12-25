@@ -42,10 +42,8 @@ export class UserController {
         const authorizedUser = res.locals.authUser
         const data = req.body
 
-        console.log(data)
-
         const updatedUser = await this.userService.editUser(authorizedUser._id, data)
-        console.log(updatedUser)
+        if(updatedUser) new APIResponse('updates users', updatedUser).ok(res)
 
 
     }

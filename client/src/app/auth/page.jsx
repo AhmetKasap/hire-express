@@ -25,7 +25,6 @@ const page = () => {
     const result = await loginService(data.email, data.password)
     if (result.success === true) {
       Cookies.set('token', result.data.token)
-      Cookies.set('avatar', result.data.user.avatar)
       notify("Giriş İşlemi Başarılı")
       resetLoginForm()
       redirect('/')

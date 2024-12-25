@@ -3,7 +3,7 @@ import APIError from "../shared/utils/APIError";
 import { MulterError } from "multer";
 
 const errorHandler: ErrorRequestHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error(err) // all error logs
+    //console.error(err) // all error logs
 
     if (err instanceof APIError) {
         res.status(err.statusCode || 500).json({

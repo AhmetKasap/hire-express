@@ -12,6 +12,7 @@ const hostController = new HostController(hostService)
 
 
 hostRouter.post('/', tokenVerifiy, createHostValidation, images, hostController.createHost.bind(hostController))
+hostRouter.get('/users', tokenVerifiy, hostController.getHostByUsername.bind(hostController))
 hostRouter.get('/', hostController.getAllHost.bind(hostController))
 hostRouter.get('/:id', hostController.getHostById.bind(hostController))
 

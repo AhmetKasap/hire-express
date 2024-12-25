@@ -34,7 +34,6 @@ const page = () => {
 
   }, [token])
 
-  console.log(validUser)
 
 
 
@@ -45,18 +44,25 @@ const page = () => {
       <div className='w-10/12 mx-auto'>
         <Navbar></Navbar>
 
-        <div className='sm:flex sm:flex-col md:flex md:flex-col lg:flex lg:flex-row xl:flex xl:flex-row xl:w-3/4 xl:mx-auto mt-8 gap-8'>
-          <Profile users={validUser}></Profile>
-          <About users={validUser}></About>
+        {
+          validUser && (
+            <div className='sm:flex sm:flex-col md:flex md:flex-col lg:flex lg:flex-row xl:flex xl:flex-row xl:w-3/4 xl:mx-auto mt-8 gap-8'>
+            <Profile users={validUser}></Profile>
+            <About users={validUser}></About>
+  
+  
+          </div>
 
+          )
+        }
 
-        </div>
+       
 
         {
           validUser && (
             <div className='w-9/12 mx-auto mt-8 flex justify-end'>
 
-              <EditProfile></EditProfile>
+              <EditProfile users={validUser}></EditProfile>
             </div>
 
           )

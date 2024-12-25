@@ -22,6 +22,15 @@ export class HostController {
         const createdHost = await this.hostService.createHost(authorizedUser._id, data)
         new APIResponse('host added successfully', createdHost).ok(res)
     }
+
+    public async getHostByUsername (req : Request, res : Response) : Promise<void> {
+        const authorizedUser = res.locals.authUser
+        
+        const result = await this.hostService.getHostByUsername(authorizedUser._id)
+        if(result) new APIResponse("user's hosts", result).ok(res)
+
+
+    }
     
 
     public async getHostById(req : Request, res : Response) : Promise<void> {

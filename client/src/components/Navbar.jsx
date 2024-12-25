@@ -4,6 +4,7 @@ import Profile from './Profile/Profile'
 import Search from './Search/Search'
 import { SiExpressvpn } from "react-icons/si";
 import Link from 'next/link';
+import { Separator } from "@/components/ui/separator"
 
 
 
@@ -35,7 +36,11 @@ const Navbar = () => {
                 <Profile></Profile>
             </div>
 
+
         </div>
+
+        <Separator className="mt-4"></Separator>
+
         
 
     </>

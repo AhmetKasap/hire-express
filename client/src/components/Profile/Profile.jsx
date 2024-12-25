@@ -13,26 +13,41 @@ import { FaUser } from "react-icons/fa";
 import Cookies from 'js-cookie';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAvatar } from '@/redux/fetuares/userSlice';
 
 
 
 const Profile = () => {
 
+    const dispatch = useDispatch()
+    const avatar = useSelector((state) => state.users.avatar)
+
+    console.log("avatrımqq", avatar)
+
+
     const [token, setToken] = useState()
-    const [avatar, setAvatar] = useState()
 
     useEffect(() => {
         const getToken = Cookies.get('token')
-        const getAvatar = Cookies.get('avatar')
 
         if (getToken) setToken(getToken)
-        if (getAvatar) setAvatar(getAvatar)
 
     }, [])
 
+    useEffect(() => {
+
+        if(token) {
+            dispatch(getAvatar(token))
+        }
+
+    },[token, dispatch])
+
+
+
+
     const logOut = async () => {
         Cookies.remove('token')
-        Cookies.remove('avatar')
         redirect('/auth')
 
     }
@@ -48,13 +63,23 @@ const Profile = () => {
                         <DropdownMenu>
                             <DropdownMenuTrigger className='rounded-full   bg-slate-200'>
 
-                            <Image
+                            {
+                                avatar ? (
+                                    <Image
                             alt='Avatar'
                             className='w-full rounded-full'
                             width={35}
                             height={35}
-                            src={avatar && avatar.startsWith('avatar') ? `http://localhost:5000/uploads/avatars/${avatar}` : 'https://cdn-icons-png.flaticon.com/512/6596/6596121.png'}
+                            src={ `http://localhost:5000/uploads/avatars/${avatar}` }
                         />
+
+                                ) : (
+                                    <div className='rounded-full p-4 w-12 bg-slate-200'>
+                                        <FaUser></FaUser>
+                                    </div>
+                                )
+                            }
+                            
 
 
                             </DropdownMenuTrigger>

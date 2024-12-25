@@ -22,7 +22,7 @@ export class UserService {
         const user = await UserModel.findById(objectId)
         if (!user) throw new APIError('User not found', 404)
         
-        const updatedAvatar = await UserModel.findByIdAndUpdate(user._id, {$set : {'avatar' : avatar}}, { new: true })
+        const updatedAvatar = await UserModel.findByIdAndUpdate(user._id, {$set : {'avatar' : avatar}}, { new: true }).select('avatar')
         return updatedAvatar
 
         
